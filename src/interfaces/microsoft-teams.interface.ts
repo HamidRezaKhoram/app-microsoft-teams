@@ -8,7 +8,7 @@ export interface MicrosoftAuthProfile {
   
     token: string
   
-    refresh: string
+    // refresh: string
     user: string
     // eslint-disable-next-line @typescript-eslint/naming-convention
     user_id: number

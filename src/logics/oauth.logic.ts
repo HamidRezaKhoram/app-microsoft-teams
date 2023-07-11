@@ -16,10 +16,12 @@ export const connectToMicrosoft = async (options: {
     accessToken: token,
     refreshToken: refresh,
   } = authInfo
+  console.log(refresh,"refresh")
   await NetworkRepository.upsert(networkId, {
+
       memberId: actorId,
       userId: String(user_id),
-      refresh: '',
+      refresh: refresh,
       token: token,
       microsoftId: String(microsoft_id),
       domain: "microsoft_domain",
@@ -36,6 +38,6 @@ export const getConnectMicrosoftUrl = async (options: {
   return `${SERVER_URL}/oauth?jwt=${await signJwt({
     networkId: network.id,
     actorId,
-    redirectUrl: "https://internship2023.bettermode.io/manage/apps/microsoft-teams",
+    redirectUrl: "https://internship2023.bettermode.io/manage/apps/microsoft-plugin-dev",
   })}`
 }

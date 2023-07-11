@@ -7,6 +7,10 @@ import { Strategy as MicrosoftPassportStrategy } from 'passport-microsoft'
 
 const OAUTH_SCOPES = [
     'user.read',
+    'openid',
+    'offline_access',
+    'Team.ReadBasic.All',
+    "Chat.ReadBasic"
 ]
 class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
     _oauth2: any
@@ -44,6 +48,7 @@ class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
         profile: MicrosoftAuthProfile,
         done,
       ) {
+        console.log(profile,accessToken,refreshToken)
         const user: Request['user'] = { accessToken, refreshToken, profile }
         return done(null, user)
       },

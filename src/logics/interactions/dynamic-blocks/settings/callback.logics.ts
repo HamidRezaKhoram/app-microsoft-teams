@@ -2,16 +2,15 @@ import { InteractionType, WebhookStatus, WebhookType } from '@enums'
 import { InteractionInput, InteractionWebhook, InteractionWebhookResponse, RedirectInteractionProps } from '@interfaces'
 import { Network, NetworkSettings } from '@prisma/client'
 import { NetworkRepository } from '@repositories'
-
 import { getInteractionNotSupportedError } from '../../../error.logics'
-
 import { globalLogger } from '@utils'
 import { SettingsBlockCallback } from './constants'
 import { getNetworkSettingsModalSlate, getNetworkSettingsSlate } from './slate.logics'
 import { getNetworkClient } from '@clients'
 import { getConnectMicrosoftUrl } from '@/logics/oauth.logic'
 import { ToastStatus } from '@enums'
-import { getDisconnectedSettingsResponse } from './helper'
+import { getConnectModalResponse, getDisconnectedSettingsResponse } from './helper'
+
 const logger = globalLogger.setContext(`SettingsDynamicBlock`)
 
 const getSaveCallbackResponse = async (options: {
@@ -42,6 +41,7 @@ const getSaveCallbackResponse = async (options: {
     },
   }
 }
+
 const getRedirectCallbackResponseMicrosoft = async ({
   props,
   interactionId,
@@ -112,6 +112,31 @@ const getAuthRevokeCallbackResponse = async (options: {
 
   return getDisconnectedSettingsResponse({ interactionId })
 }
+
+const getOpenConnectModalCallbackResponse = async (
+  networkId: string
+): Promise<InteractionWebhookResponse> => {
+  logger.debug('getConnectCallbackResponse called', { networkId })
+  const gqlClient = await getNetworkClient(networkId)
+  const spaces = await gqlClient.query({
+    name: 'space',
+    args: {
+      fields: 'basic',
+      variables: {
+        
+        id: '',
+        path: '',
+        slug: ''
+      }
+    },
+  })
+  console.log(spaces)
+  return getConnectModalResponse({
+    user: await NetworkRepository.findUniqueOrThrow(networkId),
+  })
+}
+
+
 const getModalSaveCallbackResponse = async (options: {
   network: Network
   data: InteractionInput<NetworkSettings>
@@ -220,6 +245,7 @@ export const getCallbackResponse = async (options: {
   logger.debug('getCallbackResponse called', { options })
 
   const {
+    networkId,
     data: { callbackId },
   } = options
 
@@ -228,6 +254,8 @@ export const getCallbackResponse = async (options: {
     //   return getAuthRedirectCallbackResponse(options)
     case SettingsBlockCallback.AuthVoke:
       return getAuthRevokeCallbackResponse(options)
+    case SettingsBlockCallback.OpenConnectModal:
+        return getOpenConnectModalCallbackResponse(networkId)
     // case SettingsBlockCallback.Save:
     //   return getSaveCallbackResponse(options)
     // case SettingsBlockCallback.ModalSave:

@@ -6,4 +6,6 @@ export enum SettingsBlockCallback {
   Redirect = 'redirect',
   AuthRedirect = 'auth-redirect',
   AuthVoke= 'auth-voke',
+  OpenConnectModal = 'open-connect-modal'
+  
 }

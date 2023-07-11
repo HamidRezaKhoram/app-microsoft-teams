@@ -13,7 +13,8 @@ import { getInteractionNotSupportedError } from '../../../error.logics'
 import { globalLogger } from '@utils'
 import { getCallbackResponse } from './callback.logics'
 import { getNetworkSettingsSlate } from './slate.logics'
-import { getDisconnectedSettingsResponse } from './helper'
+import { getConnectedSettingsResponse, getDisconnectedSettingsResponse } from './helper'
+import { getConnectedSettingsSlate } from './slates/connected.slate'
 
 const logger = globalLogger.setContext(`SettingsDynamicBlock`)
 
@@ -27,30 +28,20 @@ const getNetworkSettingsInteractionResponse = async (options: {
     networkId,
     data: { interactionId, callbackId },
   } = options
-
-  const network = await NetworkRepository.findUnique(networkId)
-  console.log(network)
-  
   if (callbackId) {
     return getCallbackResponse({ networkId, data: options.data })
   }
+  const network = await NetworkRepository.findUnique(networkId)
+  console.log(network)
+
   if (!network) {
     return getDisconnectedSettingsResponse({
       interactionId,
     })
   }
-  return {
-    type: WebhookType.Interaction,
-    status: WebhookStatus.Succeeded,
-    data: {
-      interactions: [
-        {
-          id: interactionId,
-          type: InteractionType.Show,
-          slate: await getNetworkSettingsSlate(network.settings),
-        },
-      ],
-    },
+
+  if (network) {
+    return getConnectedSettingsResponse(options.data, network)
   }
 }
 
