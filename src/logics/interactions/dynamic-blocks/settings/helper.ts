@@ -67,13 +67,16 @@ export const getDisconnectedSettingsResponse = async (options: {
 
 export const getConnectModalResponse = async (options: {
   user: Network
+  item: object
 }): Promise<InteractionWebhookResponse> => {
   const {
+    item
     // community: { connectedUserId, sandbox, consumerKey, consumerSecret },
   } = options
  
 
   const slate = getConnectModalSlate({
+    item
     
     // defaultConsumerKey: consumerKey,
     // defaultConsumerSecret: consumerSecret,

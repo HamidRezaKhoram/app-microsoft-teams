@@ -10,7 +10,9 @@ const OAUTH_SCOPES = [
     'openid',
     'offline_access',
     'Team.ReadBasic.All',
-    "Chat.ReadBasic"
+    "Chat.ReadBasic",
+    "ChannelSettings.ReadWrite.All",
+    "Group.ReadWrite.All"
 ]
 class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
     _oauth2: any

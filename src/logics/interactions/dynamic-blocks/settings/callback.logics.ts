@@ -1,5 +1,10 @@
 import { InteractionType, WebhookStatus, WebhookType } from '@enums'
-import { InteractionInput, InteractionWebhook, InteractionWebhookResponse, RedirectInteractionProps } from '@interfaces'
+import {
+  InteractionInput,
+  InteractionWebhook,
+  InteractionWebhookResponse,
+  RedirectInteractionProps,
+} from '@interfaces'
 import { Network, NetworkSettings } from '@prisma/client'
 import { NetworkRepository } from '@repositories'
 import { getInteractionNotSupportedError } from '../../../error.logics'
@@ -61,7 +66,7 @@ const getRedirectCallbackResponseMicrosoft = async ({
     ],
   },
 })
-const getAuthRedirectCallbackResponse = async( options: {
+const getAuthRedirectCallbackResponse = async (options: {
   networkId: string
   data: InteractionInput<NetworkSettings>
 }): Promise<InteractionWebhookResponse> => {
@@ -73,15 +78,15 @@ const getAuthRedirectCallbackResponse = async( options: {
   console.log('networkId2', networkId)
   const gqlClient = await getNetworkClient(networkId)
   console.log('gp', !!gqlClient.query, !!gqlClient.graphqlUrl)
-  let network;
-  try{
-  network = await gqlClient.query({
-    name: 'network',
-    args: 'basic',
-  })
-} catch(e){
-  console.log(e)
-}
+  let network
+  try {
+    network = await gqlClient.query({
+      name: 'network',
+      args: 'basic',
+    })
+  } catch (e) {
+    console.log(e)
+  }
   console.log('we are here!', network)
   return getRedirectCallbackResponseMicrosoft({
     props: {
@@ -97,8 +102,8 @@ const getAuthRevokeCallbackResponse = async (options: {
   networkId: string
   data: InteractionInput<NetworkSettings>
 }): Promise<InteractionWebhookResponse> => {
-  logger.debug('getAuthRedirectCallbackResponse called', )
-  logger.debug('handleUninstalledWebhook called',)
+  logger.debug('getAuthRedirectCallbackResponse called')
+  logger.debug('handleUninstalledWebhook called')
   const {
     networkId,
     data: { interactionId },
@@ -114,28 +119,37 @@ const getAuthRevokeCallbackResponse = async (options: {
 }
 
 const getOpenConnectModalCallbackResponse = async (
-  networkId: string
+  networkId: string,
 ): Promise<InteractionWebhookResponse> => {
   logger.debug('getConnectCallbackResponse called', { networkId })
   const gqlClient = await getNetworkClient(networkId)
+  // logger.log('gqlClient', gqlClient)
   const spaces = await gqlClient.query({
-    name: 'space',
+    name: 'spaces',
+
     args: {
-      fields: 'basic',
+      fields: { nodes: 'basic' },
       variables: {
-        
-        id: '',
-        path: '',
-        slug: ''
-      }
+        limit: 100,
+      },
     },
   })
+  const dictionary: { value: string; text: string }[] = []
+
+  spaces.nodes.forEach((space: any) => {
+    dictionary.push({
+      value: space.id,
+      text: space.name,
+    })
+  })
+
+  console.log(dictionary)
   console.log(spaces)
   return getConnectModalResponse({
     user: await NetworkRepository.findUniqueOrThrow(networkId),
+    item: dictionary,
   })
 }
-
 
 const getModalSaveCallbackResponse = async (options: {
   network: Network
@@ -236,8 +250,6 @@ const getRedirectCallbackResponse = async (options: {
   },
 })
 
-
-
 export const getCallbackResponse = async (options: {
   networkId: string
   data: InteractionInput<NetworkSettings>
@@ -255,7 +267,7 @@ export const getCallbackResponse = async (options: {
     case SettingsBlockCallback.AuthVoke:
       return getAuthRevokeCallbackResponse(options)
     case SettingsBlockCallback.OpenConnectModal:
-        return getOpenConnectModalCallbackResponse(networkId)
+      return getOpenConnectModalCallbackResponse(networkId)
     // case SettingsBlockCallback.Save:
     //   return getSaveCallbackResponse(options)
     // case SettingsBlockCallback.ModalSave:
@@ -271,4 +283,3 @@ export const getCallbackResponse = async (options: {
       return getInteractionNotSupportedError('callbackId', callbackId)
   }
 }
-

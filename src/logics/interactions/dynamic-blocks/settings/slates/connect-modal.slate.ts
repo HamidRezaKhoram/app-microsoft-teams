@@ -6,12 +6,13 @@ import {
 
 export const getConnectModalSlate = (options?: {
     showEnvPicker?: boolean
+    item?: object
     defaultConsumerKey?: string
     defaultConsumerSecret?: string
-  }): RawSlateDto => {
+  } ): RawSlateDto => {
     const {
      
-      
+      item
   
     } = options || {}
     return {
@@ -43,10 +44,7 @@ export const getConnectModalSlate = (options?: {
             props: {
               name: 'teams',
               label: 'Teams',
-              items: [
-                { value: "SalesforceEnvironment.Production", text: 'Production' },
-                { value: "SalesforceEnvironment.Sandbox", text: 'Sandbox' },
-              ],
+              items: item,
               required: true,
             },
           },
