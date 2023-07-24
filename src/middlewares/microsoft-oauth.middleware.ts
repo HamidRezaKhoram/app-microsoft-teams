@@ -12,7 +12,8 @@ const OAUTH_SCOPES = [
     'Team.ReadBasic.All',
     "Chat.ReadBasic",
     "ChannelSettings.ReadWrite.All",
-    "Group.ReadWrite.All"
+    "Group.ReadWrite.All",
+    "TeamsAppInstallation.ReadWriteSelfForTeam",
 ]
 class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
     _oauth2: any
@@ -98,12 +99,23 @@ class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
 export const middleMicrosoft = passport.authenticate('microsoft');
 
 export const consumerExtractorMiddleware = async (req: Request, res: Response, next) => {
-  const state = await verifyJwt<MicrosoftState>(
+  let state ;
+  try{
+   state= await verifyJwt<MicrosoftState>(
     (req.query.jwt || req.query.state) as string,
+    
   )
+  req.state = state
+   }catch(err){console.log(err)
+    res.status(401).send({ message: 'Invalid jwt token' }
+    //redirect to login page
+    
+    )
+    // res.redirect("https://internship2023.bettermode.io/")
+  }
   // const community = await NetworkSettingsRepository.findUniqueOrThrow(state.networkId)
   console.log(state)
-  req.state = state
+ 
   // req.consumerKey = community.newConsumerKey
   // req.consumerSecret = community.newConsumerSecret
 
