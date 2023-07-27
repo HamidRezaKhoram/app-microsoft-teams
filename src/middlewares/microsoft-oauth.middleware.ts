@@ -1,6 +1,6 @@
 import { MicrosoftAuthProfile, MicrosoftState } from '@/interfaces/microsoft-teams.interface'
 import { verifyJwt } from '@/utils/jwt.utils'
-import { MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, SERVER_URL } from '@config'
+import { MICROSOFT_AAD_ENDPOINT, MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_ENDPOINT, SERVER_URL } from '@config'
 import { Request, Response } from 'express'
 import passport from 'passport'
 import { Strategy as MicrosoftPassportStrategy } from 'passport-microsoft'
@@ -15,6 +15,7 @@ const OAUTH_SCOPES = [
     "Group.ReadWrite.All",
     "TeamsAppInstallation.ReadWriteSelfForTeam",
 ]
+
 class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
     _oauth2: any
   
@@ -51,7 +52,7 @@ class MicrosofTeamstStrategy extends MicrosoftPassportStrategy {
         profile: MicrosoftAuthProfile,
         done,
       ) {
-        console.log(profile,accessToken,refreshToken)
+        
         const user: Request['user'] = { accessToken, refreshToken, profile }
         return done(null, user)
       },

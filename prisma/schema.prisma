@@ -15,7 +15,9 @@ model Network {
   createdAt  DateTime   @default(now())
   updatedAt DateTime @updatedAt
   
+ 
   networkId String @unique
+  tenantId String 
   memberId String 
   userId String
   token String
